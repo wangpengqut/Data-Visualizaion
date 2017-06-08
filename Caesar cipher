@@ -1,0 +1,32 @@
+import string
+string.ascii_lowercase
+
+# We will consider the alphabet to be these letters, along with a space.
+alphabet = string.ascii_lowercase + " "
+
+# create `letters` here!
+letters = {0:'a', 1:'b', 2:'c', 3:'d', 4:'e', 
+           5:'f', 6:'g', 7:'h', 8:'i', 9:'j', 
+           10:'k', 11:'l', 12:'m', 13:'n', 14:'o', 
+           15:'p', 16:'q', 17:'r', 18:'s', 19:'t', 
+           20:'u', 21:'v', 22:'w', 23:'x', 24:'y', 
+           25:'z', 26:' '}
+alphabet = string.ascii_lowercase + " "
+letters = dict(enumerate(alphabet))
+
+encryption_key = 3
+
+# define `encoding` here!
+encoding = {alphabet[i]:(encryption_key + i)%27 for i in range(27)}
+
+message = "hi my name is caesar"
+
+def caesar(message, encryption_key):
+    coded_message_string = "".join(letters[encoding[letter]] for letter in message)
+    return coded_message_string
+    # return the encoded message as a single string!
+encoded_message = caesar(message, 3)
+print(encoded_message)
+
+decode_message = caesar(encoded_message, -3)
+print(decoded_message)
