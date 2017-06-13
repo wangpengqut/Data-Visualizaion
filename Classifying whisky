@@ -1,0 +1,94 @@
+#4.1.1:Getting started with Pandas
+import pandas as pd
+x = pd.Series([6,3,8,6], index=["q","w","e","r"])
+
+age = {"Tim":29,"Jim":31,"Pam":27,"Sam":35}
+x = pd.Series(age)
+
+data = {'name':['Tim','Jim','Pam','Sam'],
+         'age':[29,31,27,35],
+         'ZIP':['02115','03130','67700','00100']}
+
+x = pd.DataFrame(data,columns=["name","age","ZIP"])
+x["name"]
+#R:0    Tim or
+x.name
+
+x = pd.Series([6,3,8,6], index=["q","w","e","r"])
+x.index
+#R:Index(['q', 'w', 'e', 'r'], dtype='object')
+sorted(x.index)
+#R: ['e', 'q', 'r', 'w']
+x.reindex(sorted(x.index))
+#R:e    8
+
+x = pd.Series([6,3,8,6], index=["q","w","e","r"])
+y = pd.Series([7,3,5,2], index=["e","q","r","t"])
+
+#4.1.2 Loading and Inspecting Data
+import pandas as pd
+import numpy as np
+whisky = pd.read_csv("whiskies.txt")
+whisky["Region"] = pd.read_csv("regions.txt")
+whisky.head()
+whisky.tail()
+whisky.iloc[0:10]
+#rows and columns
+whisky.iloc[5:10, 0:5]
+whisky.columns
+#R:Index(['RowID', 'Distillery', 'Body', 'Sweetness', 'Smoky', 'Medicinal',
+       #'Tobacco', 'Honey', 'Spicy', 'Winey', 'Nutty', 'Malty', 'Fruity',
+      # 'Floral', 'Postcode', ' Latitude', ' Longitude', 'Region'],
+      #dtype='object')
+flavors= whisky.iloc[:,2:14]
+
+#Exploring Correlations
+corr_flavors = pd.DataFrame.corr(flavors)
+print(corr_flavors)
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(10,10))
+plt.pcolor(corr_flavors)
+plt.colorbar()
+plt.savefig("corr_flavors.pdf")
+
+
+corr_whisky = pd.DataFrame.corr(flavors.transpose())
+plt.figure(figsize=(10,10))
+plt.pcolor(corr_whisky)
+plt.axis("tight")
+plt.colorbar()
+plt.savefig("corr_whisky.pdf")
+
+#4.14:Clustering whisky by flavor profile
+from sklearn.cluster.bicluster import SpectralCoclustering
+model = SpectralCoclustering(n_clusters=6, random_state=0)
+model.fit(corr_whisky)
+model.rows_
+
+np.sum(model.rows_,axis=1)
+#R:array([20,  5, 19, 17,  6, 19])
+np.sum(model.rows_,axis=0)
+
+model.row_labels_
+#All of the entries in the array have to be numbers between 0 and 5
+
+
+#4.1.5: Comparing Correlation Matrices
+import matplotlib.pyplot as plt
+whisky['Group'] = pd.Series(model.row_labels_, index=whisky.index)
+whisky=whisky.ix[np.argsort(model.row_labels_)]
+whisky=whisky.reset_index(drop=True)
+correlations = pd.DataFrame.corr(whisky.iloc[:,2:14].transpose())
+correlations = np.array(correlations)
+
+plt.figure(figsize=(14,7))
+plt.subplot(121)
+plt.pcolor(corr_whisky)
+plt.title("Original")
+plt.axis("tight")
+plt.subplot(122)
+plt.pcolor(correlations)
+plt.title("Rearranged")
+plt.axis("tight")
+plt.savefig("correlations.pdf")
